@@ -3,9 +3,21 @@ set -e
 
 PTERO="/var/www/pterodactyl"
 THEME="$PTERO/public/themes/neon.css"
-INDEX="$PTERO/resources/views/index.blade.php"
 
-echo "==> Installing Neon Black Theme (VITE SAFE)"
+LAYOUT1="$PTERO/resources/views/layouts/app.blade.php"
+LAYOUT2="$PTERO/resources/views/index.blade.php"
+
+if [ -f "$LAYOUT1" ]; then
+  TARGET="$LAYOUT1"
+elif [ -f "$LAYOUT2" ]; then
+  TARGET="$LAYOUT2"
+else
+  echo "❌ Layout file not found (unsupported panel version)"
+  exit 1
+fi
+
+echo "==> Installing Neon Black Theme (VITE REAL SAFE)"
+echo "==> Using layout: $TARGET"
 
 mkdir -p "$PTERO/public/themes"
 
@@ -41,11 +53,11 @@ button {
 /* ===== End ===== */
 EOF
 
-if ! grep -q "themes/neon.css" "$INDEX"; then
-  sed -i '/<\/head>/i <link rel="stylesheet" href="/themes/neon.css">' "$INDEX"
+if ! grep -q "themes/neon.css" "$TARGET"; then
+  sed -i '/<\/head>/i <link rel="stylesheet" href="/themes/neon.css">' "$TARGET"
 fi
 
 php artisan view:clear
 php artisan optimize:clear
 
-echo "✅ Neon Theme Installed (Vite Panel)"
+echo "✅ Neon Theme Installed SUCCESS"
