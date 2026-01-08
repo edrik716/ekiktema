@@ -4,7 +4,7 @@ set -e
 PANEL_DIR="/var/www/pterodactyl"
 CSS_DIR="$PANEL_DIR/resources/css"
 CSS_FILE="$CSS_DIR/custom-neon-theme.css"
-LAYOUT_FILE="$PANEL_DIR/resources/views/layouts/app.blade.php"
+LAYOUT_FILE="/var/www/pterodactyl/resources/views/templates/app.blade.php"
 
 echo "==> Installing Neon Black Theme (Safe Mode)"
 
