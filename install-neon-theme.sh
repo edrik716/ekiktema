@@ -1,56 +1,51 @@
 #!/bin/bash
 set -e
 
-echo "==> Installing Neon Black Theme (Ptero Inertia Safe)"
-
 PTERO="/var/www/pterodactyl"
-CSS="$PTERO/resources/css/app.css"
+THEME="$PTERO/public/themes/neon.css"
+INDEX="$PTERO/resources/views/index.blade.php"
 
-if [ ! -f "$CSS" ]; then
-  echo "❌ app.css not found"
-  exit 1
-fi
+echo "==> Installing Neon Black Theme (VITE SAFE)"
 
-echo "✔ Found app.css"
+mkdir -p "$PTERO/public/themes"
 
-cat >> "$CSS" <<'EOF'
-
+cat > "$THEME" <<'EOF'
 /* ===== Neon Black Theme ===== */
 :root {
-  --neon: #00ffff;
+  --neon:#00ffff;
 }
 
 body {
-  background-color: #050505 !important;
+  background:#050505!important;
 }
 
-header, nav, aside {
-  background: #000 !important;
-  box-shadow: 0 0 15px var(--neon);
+header,nav,aside {
+  background:#000!important;
+  box-shadow:0 0 12px var(--neon);
 }
 
-a {
-  color: var(--neon) !important;
+a { color:var(--neon)!important; }
+
+button {
+  background:linear-gradient(90deg,#00ffff,#00ff99)!important;
+  color:#000!important;
 }
 
-button, .bg-primary {
-  background: linear-gradient(90deg,#00ffff,#00ff99) !important;
-  border: none !important;
+#app {
+  background:url("https://files.catbox.moe/9yuwp3.jpg") center/cover no-repeat fixed;
 }
 
-.login-container {
-  background: url("https://files.catbox.moe/9yuwp3.jpg") center/cover no-repeat;
+.dashboard-wrapper {
+  background:url("https://files.catbox.moe/cjg3lg.jpg") center/cover no-repeat;
 }
-
-.dashboard {
-  background: url("https://files.catbox.moe/cjg3lg.jpg") center/cover no-repeat;
-}
-/* ===== End Theme ===== */
-
+/* ===== End ===== */
 EOF
 
-cd "$PTERO"
+if ! grep -q "themes/neon.css" "$INDEX"; then
+  sed -i '/<\/head>/i <link rel="stylesheet" href="/themes/neon.css">' "$INDEX"
+fi
+
 php artisan view:clear
 php artisan optimize:clear
 
-echo "✅ Neon theme installed (CSS only, safe)"
+echo "✅ Neon Theme Installed (Vite Panel)"
