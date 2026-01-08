@@ -1,63 +1,61 @@
 #!/bin/bash
 set -e
 
-PTERO="/var/www/pterodactyl"
-THEME="$PTERO/public/themes/neon.css"
+echo ">>> EKIK NEON BRUTAL THEME INSTALLER"
 
-LAYOUT1="$PTERO/resources/views/layouts/app.blade.php"
-LAYOUT2="$PTERO/resources/views/index.blade.php"
+PANEL="/var/www/pterodactyl"
+ASSETS="$PANEL/public/assets"
 
-if [ -f "$LAYOUT1" ]; then
-  TARGET="$LAYOUT1"
-elif [ -f "$LAYOUT2" ]; then
-  TARGET="$LAYOUT2"
-else
-  echo "❌ Layout file not found (unsupported panel version)"
+if [ ! -d "$ASSETS" ]; then
+  echo "❌ Assets folder not found"
   exit 1
 fi
 
-echo "==> Installing Neon Black Theme (VITE REAL SAFE)"
-echo "==> Using layout: $TARGET"
+echo "→ Downloading background images"
+curl -fsSL https://files.catbox.moe/9yuwp3.jpg -o "$ASSETS/ekik-bg1.jpg"
+curl -fsSL https://files.catbox.moe/cjg3lg.jpg -o "$ASSETS/ekik-bg2.jpg"
 
-mkdir -p "$PTERO/public/themes"
-
-cat > "$THEME" <<'EOF'
-/* ===== Neon Black Theme ===== */
-:root {
-  --neon:#00ffff;
-}
-
+echo "→ Creating embedded neon CSS"
+cat > "$ASSETS/ekik-neon.css" <<'EOF'
 body {
-  background:#050505!important;
+  background:
+    linear-gradient(rgba(0,0,0,.85), rgba(0,0,0,.85)),
+    url("/assets/ekik-bg1.jpg"),
+    url("/assets/ekik-bg2.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-header,nav,aside {
-  background:#000!important;
-  box-shadow:0 0 12px var(--neon);
+* {
+  --primary: #00ffcc;
+  --accent: #00ffaa;
 }
 
-a { color:var(--neon)!important; }
-
-button {
-  background:linear-gradient(90deg,#00ffff,#00ff99)!important;
-  color:#000!important;
+a, button, .btn {
+  color: #00ffcc !important;
+  text-shadow: 0 0 6px #00ffcc;
 }
 
-#app {
-  background:url("https://files.catbox.moe/9yuwp3.jpg") center/cover no-repeat fixed;
+.card, .box, .panel {
+  background: rgba(0,0,0,.75) !important;
+  border: 1px solid #00ffcc;
+  box-shadow: 0 0 20px #00ffcc55;
 }
 
-.dashboard-wrapper {
-  background:url("https://files.catbox.moe/cjg3lg.jpg") center/cover no-repeat;
+input, select, textarea {
+  background: #050505 !important;
+  color: #00ffcc !important;
+  border: 1px solid #00ffcc;
 }
-/* ===== End ===== */
 EOF
 
-if ! grep -q "themes/neon.css" "$TARGET"; then
-  sed -i '/<\/head>/i <link rel="stylesheet" href="/themes/neon.css">' "$TARGET"
-fi
+echo "→ Injecting CSS loader into all JS bundles"
+for f in "$ASSETS"/*.js; do
+  if ! grep -q "ekik-neon.css" "$f"; then
+    sed -i '1s|^|var _ekik=document.createElement("link");_ekik.rel="stylesheet";_ekik.href="/assets/ekik-neon.css";document.head.appendChild(_ekik);\n|' "$f"
+  fi
+done
 
-php artisan view:clear
-php artisan optimize:clear
-
-echo "✅ Neon Theme Installed SUCCESS"
+echo "✅ DONE"
+echo "⚠️ HARD REFRESH BROWSER (CTRL+F5)"
